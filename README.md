@@ -25,27 +25,41 @@ Prometheus is configured to monitor three services: MySQL (Database), Nginx, and
  - Install Python [To scrape custom metrics].
 
 ## Steps
+ ### Defining Custom Metrics
+    - We have used a Python Script to define custom metrics
+    - Define Custom metrics to expose the status of MySQL, Nginx, Spring on port 8000
+ 
+ ### Define Alert-Rules
+    -  The alert-rules file contains Prometheus alert rules for monitoring critical services and applications:
+        -  MySQLServiceDown: Alerts when the MySQL service is unresponsive.
+        -  NginxServiceDown: Alerts when the Nginx service encounters issues.
+        -  SpringAppServiceDown: Alerts when the Spring application is not responding.
 
- - Download the latest release of Prometheus for your platform, then extract and run it:
-        ```
-        tar xvfz prometheus-*.tar.gz
-        cd prometheus-*
-        ```
- - Configure prometheus.yml 
-        ```
-        global:
-            scrape_interval: 15s
+ ### Alert Manager 
+    - This configuration file for AlertManager defines how alerts are routed and handled based on specific service names. It ensures timely responses to service disruptions
 
-        scrape_configs:
-            - job_name: 'combined_monitoring'
-        static_configs:
-            - targets: ['localhost:8000']
+    - Service-specific routes direct alerts to distinct Jenkins webhook endpoints for handling. For instance, 'jenkins-webhook-mysql' manages MySQL service alerts, and 'jenkins-webhook-nginx' handles Nginx alerts.
 
-        rule_files:
-            - 'alert-rules.yml'
+    - Start alert manager
+    ```
+    ./alertmanager --config.file=alertmanager.yml
+    ```
+   
+ ### Prometheus Setup
+    - Download the latest release of Prometheus for your platform, then extract and run it:
+            ```
+            tar xvfz prometheus-*.tar.gz
+            cd prometheus-*
+            ```
+    - Configure prometheus.yml 
+    - Start the prometheus
+    ```
+    ./prometheus --config.file=prometheus.yml
+    ```
 
-        alerting:
-            alertmanagers:
-                - static_configs:
-                - targets: ['localhost:9093']
-      ```
+ ### Setup Jenkins 
+    - Create a new Job in Jenkins
+    - Configure the Job 
+        - Select the option "The project is parameterized"
+        image.png
+        
